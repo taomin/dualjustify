@@ -14,7 +14,7 @@ YUI.add('dualjustify', function(Y, NAME){
                     currentStr = '',
                     currentInDoubleByte,
                     textArray = [],
-                    fontsize = parseInt(node.getComputedStyle('font-size').replace('px', ''), 10),
+                    fontsize = parseInt(node.getComputedStyle('fontSize').replace('px', ''), 10),
                     containerWidth = parseInt(node.getComputedStyle('width').replace('px', ''), 10),
                     charPerLine = Math.floor(containerWidth / fontsize),
                     currentLineChars = 0,
@@ -57,11 +57,14 @@ YUI.add('dualjustify', function(Y, NAME){
                         // single byte: check if we need to split string before inserting
                         // I also assume each single byte char is 42% width of double byte char
                         content.text = content.text.trim();
+                        if (content.length > 0) {
+                            content.text = ' ' + content.legnth + ' ';
+                        }
                         textAlign = 'center';
                         while (content.text.length > 0) {
                             // new string width
                             classes = 'single';
-                            textWidth = Math.ceil(content.text.length * 0.42);
+                            textWidth = Math.ceil(content.text.length * 0.47);
                             if (charPerLine - currentLineChars > textWidth) {
                                 units = textWidth;
                                 cutpos = content.text.length;
