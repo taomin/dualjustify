@@ -5,7 +5,8 @@ YUI.add('dualjustify', function(Y, NAME){
             SINGLE_BYTE = 's',
             DUALJUSTIFY_SELECTOR = '.dualjustify',
             DEFAULT_SINGLE_BYTE_SIZE_REDUCTION = 1,
-            AVG_SINGLE_BYTE_RATIO = 0.51;
+            AVG_SINGLE_BYTE_RATIO = 0.51,
+            DOUBLE_BYTE_START_INDEX = 10000;
 
         function dualjustify (options) {
 
@@ -33,10 +34,10 @@ YUI.add('dualjustify', function(Y, NAME){
                 // split string into arrays
                 if (text.length > 0) {
                     // initial value
-                    currentInDoubleByte = text.charCodeAt(i) > 255 ? true : false;
+                    currentInDoubleByte = text.charCodeAt(i) > DOUBLE_BYTE_START_INDEX ? true : false;
 
                     while (i < text.length) {
-                        if ((text.charCodeAt(i) > 255 && currentInDoubleByte) || (text.charCodeAt(i) < 255 && !currentInDoubleByte)) {
+                        if ((text.charCodeAt(i) > DOUBLE_BYTE_START_INDEX && currentInDoubleByte) || (text.charCodeAt(i) < DOUBLE_BYTE_START_INDEX && !currentInDoubleByte)) {
                             currentStr += text.charAt(i);
                         } else {
                             textArray.push({
@@ -44,7 +45,7 @@ YUI.add('dualjustify', function(Y, NAME){
                                 text: currentStr
                             });
                             currentStr = text.charAt(i);
-                            currentInDoubleByte = text.charCodeAt(i) > 255 ? true : false;
+                            currentInDoubleByte = text.charCodeAt(i) > DOUBLE_BYTE_START_INDEX ? true : false;
                         }
 
                         i++;
