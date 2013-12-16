@@ -1,0 +1,9 @@
+.hyphen:after {
+    content: "-";
+    position: absolute;
+}
+
+.single {
+    text-align:center;
+    display: inline-block;
+}

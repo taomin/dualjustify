@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>{{title}}</title>
+        <link rel="stylesheet" type="text/css" href="css/justify.css" />
+        <script src="http://yui.yahooapis.com/3.14.0/build/yui/yui-min.js"></script>
+    </head>
+    <body>
+        {{#content}}
+        <p class="dualjustify" style="width:50%">
+                {{this}}
+        </p>
+        {{/content}}
+        <script type="text/javascript" src="js/justify.js"></script>
+        <script>
+            YUI().use('dualjustify', function(Y){
+                Y.on('domready', Y.Util.DualJustify);
+                Y.on('resize', Y.Util.DualJustify);
+            });
+        </script>
+    </body>
+</html>
+
