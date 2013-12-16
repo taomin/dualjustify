@@ -11,7 +11,8 @@ YUI.add('dualjustify', function(Y, NAME){
 
             var sizeReduction = options && options.hasOwnProperty('sizeReduction') ? options.sizeReduction : DEFAULT_SINGLE_BYTE_SIZE_REDUCTION,
                 engRatio = options && options.hasOwnProperty('engRatio') ? options.engRatio : AVG_SINGLE_BYTE_RATIO,
-                blocks = Y.all(DUALJUSTIFY_SELECTOR);
+                selector = options && options.selector ? options.selector : DUALJUSTIFY_SELECTOR,
+                blocks = Y.all(selector);
 
             blocks.each(function(node){
                 if (node.one('iframe,object,img,i,embed')) {
