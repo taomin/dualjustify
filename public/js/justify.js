@@ -3,13 +3,22 @@ YUI.add('dualjustify', function(Y, NAME){
 
         var DOUBLE_BYTE = 'd',
             SINGLE_BYTE = 's',
-            DUALJUSTIFY_SELECTOR = '.dualjustify';
+            DUALJUSTIFY_SELECTOR = '.dualjustify',
+            DEFAULT_SINGLE_BYTE_SIZE_REDUCTION = 1,
+            AVG_SINGLE_BYTE_RATIO = 0.51;
 
-        function dualjustify () {
-            blocks = Y.all(DUALJUSTIFY_SELECTOR);
+        function dualjustify (options) {
+
+            var sizeReduction = options && options.hasOwnProperty('sizeReduction') ? options.sizeReduction : DEFAULT_SINGLE_BYTE_SIZE_REDUCTION,
+                engRatio = options && options.hasOwnProperty('engRatio') ? options.engRatio : AVG_SINGLE_BYTE_RATIO,
+                blocks = Y.all(DUALJUSTIFY_SELECTOR);
+
             blocks.each(function(node){
+                if (node.one('iframe,object,img,i,embed')) {
+                    return;
+                }
 
-                var text = node.get('text').trim(),
+                var text = node.get('text').trim().replace(/（/g, '(').replace(/）/g, ')'),
                     i = 0,
                     currentStr = '',
                     currentInDoubleByte,
@@ -64,7 +73,7 @@ YUI.add('dualjustify', function(Y, NAME){
                         while (content.text.length > 0) {
                             // new string width
                             classes = 'single';
-                            textWidth = Math.ceil(content.text.length * 0.47);
+                            textWidth = Math.ceil(content.text.length * engRatio);
                             if (charPerLine - currentLineChars > textWidth) {
                                 units = textWidth;
                                 cutpos = content.text.length;
@@ -76,7 +85,7 @@ YUI.add('dualjustify', function(Y, NAME){
                                 }
                             }
 
-                            outputHtml += '<span class="' + classes + '" style="text-align:' + textAlign + ';font-size:' + (fontsize - 2) + 'px;width:' + (fontsize * units) + 'px">' + content.text.slice(0, cutpos) + '</span>';
+                            outputHtml += '<span class="' + classes + '" style="text-align:' + textAlign + ';font-size:' + (fontsize + sizeReduction) + 'px;width:' + (fontsize * units) + 'px">' + content.text.slice(0, cutpos) + '</span>';
                             content.text = content.text.substring(cutpos);
                             currentLineChars = (currentLineChars + units) % charPerLine;
                             textAlign = content.text.length > 0 ? 'left' : 'center';
@@ -90,7 +99,7 @@ YUI.add('dualjustify', function(Y, NAME){
             });
         };
 
-        Y.namespace('Util').DualJustify = dualjustify;
+        Y.namespace('Justify').DualJustify = dualjustify;
 
 
-}, "0.0.1", { requires: [ 'node', 'event-resize' ]});
+}, "0.0.1", { requires: [ 'node' ]});
