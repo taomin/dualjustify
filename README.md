@@ -14,7 +14,9 @@ WARNING: You better know basic HTML/CSS for your debugging
 In your blog, insert below codes:
 
 ```
+
 <link rel="stylesheet" type="text/css" href="http://newspeak.cc:3000/css/justify.css" />
+<script src="http://yui.yahooapis.com/3.14.0/build/yui/yui-min.js"></script>
 <script type="text/javascript" src="http://newspeak.cc:3000/js/justify.js"></script>
 <script>
     var YUtil;
