@@ -7,6 +7,7 @@ YUI.add('dualjustify', function(Y, NAME){
             DUALJUSTIFY_SELECTOR = '.dualjustify',
             JUSTIFY_SPAN = 'justify-span',
             JUSTIFY_HYPHEN = 'justify-hyphen',
+            NOJUSTIFY = 'justify-noadjust',
             DEFAULT_SINGLE_BYTE_SIZE_REDUCTION = -1, // optional if you want to reduce the size of single byte char
             AVG_SINGLE_BYTE_RATIO = 0.55, // an avg number of a single byte char actual width (comparing to font size)
             DOUBLE_BYTE_START_INDEX = 10000; // we assume all the char which UTF-8 index is greater than 10000 is double byte char.
@@ -14,7 +15,7 @@ YUI.add('dualjustify', function(Y, NAME){
 
         function _parseInnerHtml (node) {
             var output = [], hasOuterHtml, wrapper, text, currentInDoubleByte, i = 0, currentStr = '';
-            if (node.get('nodeName') === '#text' || node.test('.' + JUSTIFY_SPAN)) {
+            if (node.get('childNodes').size() === 0 || node.test('.' + JUSTIFY_SPAN)) {
                 // base case: this node contains pure text, parse string into array
                 text = node.get('text').trim().replace(/（/g, '(').replace(/）/g, ')');
                 if (text.length > 0) {
@@ -140,13 +141,20 @@ YUI.add('dualjustify', function(Y, NAME){
                 blocks = Y.all(selector);
 
             blocks.each(function(node){
-                // if there are any iframe/object... which is not inline text, we will skip
-                if (node.one('iframe,object,img,i,embed')) {
+                if (node.test(NOJUSTIFY)) {
                     return;
                 }
 
-                var textArray,
+                var text = node.get('text').trim(),
+                    textArray,
                     justifySpans = node.all('.' + JUSTIFY_SPAN);
+
+                if (text.length * 0.5 > text.replace(/[0-9a-zA-Z]/g, '').length || node.one('iframe,object,img,i,embed,br')) {
+                    // 1. over half of the text is english, bypass this
+                    // 2. if there are any iframe/object... which is not inline text, we will skip
+                    node.addClass(NOJUSTIFY);
+                    return;
+                }
 
                 // an expensive way to cleanup existing justify-spans : mostly from window resize
                 if (justifySpans.size() > 0) {

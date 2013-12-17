@@ -57,7 +57,9 @@ app.get('/', function(req, res){
 
             "而就機器人項目而言，它對 Google 的價值如《紐約時報》所說，將協助 Google 在製造業上有所建設。另外據知情人透露，Google 還希望能通過機器人與亞馬遜在零售業上展開競爭，將產品供應鏈不斷延伸，實現從工廠將產品直接配送到用戶家門口。",
 
-            "聽起來不錯。波士頓動力的網站還顯示，他們正在嘗試「人體模擬」項目，用於基於模擬人類行為的訓練。他們描述了一個圍繞人類展開的應用場景，表示將提高人類與電腦和可穿戴設備的交流。這與 Google 的目標不謀而合。從已經推出的幾款產品來看，他們做得還不錯。"
+            "聽起來不錯。波士頓動力的網站還顯示，他們正在嘗試「人體模擬」項目，用於基於模擬人類行為的訓練。他們描述了一個圍繞人類展開的應用場景，表示將提高人類與電腦和可穿戴設備的交流。這與 Google 的目標不謀而合。從已經推出的幾款產品來看，他們做得還不錯。",
+            "The App Store is about to shutdown for holiday break this Saturday. And so I felt it was a good time to reflect on where we are with regard to the marketplace heading into 2014. The answer, as best I can tell from talking with innumerable developers over the past year, is still very good — but it’s not exactly great. And it should be great."
+
         ]
     });
 });
