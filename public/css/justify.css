@@ -1,9 +1,9 @@
-.hyphen:after {
+.justify-hyphen:after {
     content: "-";
     position: absolute;
 }
 
-.single {
+.justify-span {
     text-align:center;
     display: inline-block;
 }
