@@ -8,14 +8,49 @@ YUI.add('dualjustify', function(Y, NAME){
             JUSTIFY_SPAN = 'justify-span',
             JUSTIFY_HYPHEN = 'justify-hyphen',
             NOJUSTIFY = 'justify-noadjust',
-            DEFAULT_SINGLE_BYTE_SIZE_REDUCTION = -1, // optional if you want to reduce the size of single byte char
-            AVG_SINGLE_BYTE_RATIO = 0.55, // an avg number of a single byte char actual width (comparing to font size)
-            DOUBLE_BYTE_START_INDEX = 10000; // we assume all the char which UTF-8 index is greater than 10000 is double byte char.
+            DOUBLE_BYTE_START_INDEX = 10000, // we assume all the char which UTF-8 index is greater than 10000 is double byte char.
+            refBlock,  // last node that needs dualjustify. We will store this node because we use it for testing char width
+            widthNode,
+            widthMap = {};
 
+        /**
+         * A function that calculates the char width, and store the value in widthMap.
+         * @param character {String} The character that we want to get width
+         * @void
+         */
+        function _getCharWidth(character) {
 
+            if (!widthNode) {
+                refBlock.append('<span style="visibility:hidden;display:inline;margin:0;padding:0;border:0"></span>');
+                widthNode = refBlock.get('lastChild');
+            }
+
+            if (widthMap[character] === undefined) {
+                widthNode.set('text', character);
+                widthMap[character] = widthNode.get('offsetWidth') || 5;  // empty space's offsetWidth is 0, change that to 3
+            }
+
+        }
+
+        /**
+         * Parse a Node's innerHTML and parse into an array. The array would be look like
+         *  [
+         *       { type: TAG, text: '<a href="blah">'},
+         *       { type: SINGLE_BYTE, text: 'abc' },
+         *       { type: DOUBLE_BYTE, text: '中文'},
+         *       { type: TAG, text: '</a>'}
+         *  ]
+         * @param node {Y.Node} a node which we want to parse its innerHTML
+         * @return {Array} parsed result
+         */
         function _parseInnerHtml (node) {
-            var output = [], hasOuterHtml, wrapper, text, currentInDoubleByte, i = 0, currentStr = '';
-            if (node.get('childNodes').size() === 0 || node.test('.' + JUSTIFY_SPAN)) {
+            var output = [], hasOuterHtml, wrapper, text, currentInDoubleByte, i = 0, character, charCode,
+                currentStr = '', nodeName = node.get('nodeName');
+
+            if (nodeName === 'BR') {
+                // if the tag is BR, include it directly
+                return [{ type: TAG, text: node.get('outerHTML')}];
+            } else if (node.get('childNodes').size() === 0 || node.test('.' + JUSTIFY_SPAN)) {
                 // base case: this node contains pure text, parse string into array
                 text = node.get('text').trim().replace(/（/g, '(').replace(/）/g, ')');
                 if (text.length > 0) {
@@ -23,15 +58,25 @@ YUI.add('dualjustify', function(Y, NAME){
                     currentInDoubleByte = text.charCodeAt(i) > DOUBLE_BYTE_START_INDEX ? true : false;
 
                     while (i < text.length) {
-                        if ((text.charCodeAt(i) > DOUBLE_BYTE_START_INDEX && currentInDoubleByte) || (text.charCodeAt(i) < DOUBLE_BYTE_START_INDEX && !currentInDoubleByte)) {
-                            currentStr += text.charAt(i);
+                        character = text.charAt(i);
+                        charCode = text.charCodeAt(i);
+
+                        if (charCode < DOUBLE_BYTE_START_INDEX) {
+                            _getCharWidth(character);
+                        }
+
+                        // if new char uses the same lang w/ current string
+                        if ((charCode > DOUBLE_BYTE_START_INDEX && currentInDoubleByte) || (charCode < DOUBLE_BYTE_START_INDEX && !currentInDoubleByte)) {
+                            // append it to current string
+                            currentStr += character;
                         } else {
+                        // if not, save the previous string into text array
                             output.push({
                                 type: currentInDoubleByte ? DOUBLE_BYTE : SINGLE_BYTE,
                                 text: currentStr
                             });
-                            currentStr = text.charAt(i);
-                            currentInDoubleByte = text.charCodeAt(i) > DOUBLE_BYTE_START_INDEX ? true : false;
+                            currentStr = character;
+                            currentInDoubleByte = charCode > DOUBLE_BYTE_START_INDEX ? true : false;
                         }
 
                         i++;
@@ -64,21 +109,21 @@ YUI.add('dualjustify', function(Y, NAME){
             }
             return output;
 
-        };
+        }
 
 
-        function _generateJustifyHtml (textArray, options) {
+        function _generateJustifyHtml (textArray, node) {
 
-            if (!options || !options.node || !textArray || !Array.isArray(textArray)) {
+            if (!node || !textArray || !Array.isArray(textArray)) {
                 return;
             }
 
-            var node = options.node,
-                fontsize = parseInt(node.getComputedStyle('fontSize').replace('px', ''), 10),
-                containerWidth = parseInt(node.getComputedStyle('width').replace('px', ''), 10),
-                charPerLine = Math.floor(containerWidth / fontsize),
+
+            var containerWidth = parseInt(node.getComputedStyle('width').replace('px', ''), 10),
                 currentLineChars = 0,
-                outputHtml = '';
+                outputHtml = '',
+                fontsize = parseInt(node.getComputedStyle('fontSize').replace('px', ''), 10),
+                charPerLine = Math.floor(containerWidth / fontsize);
 
             // generating output html
             Y.Array.each(textArray, function (content, index){
@@ -88,37 +133,44 @@ YUI.add('dualjustify', function(Y, NAME){
                     return;
                 }
 
-                var textWidth, units, cutpos, classes, textAlign;
+                var textWidth, units, cutpos, classes, textAlign, index, spaceleft;
                 currentLineChars = currentLineChars % charPerLine;
                 if (content.type === TAG) {
+                    // if the tag is br, it will go to next line, so reset the currentLineChars
+                    if (content.text === '<br>' || content.text === '<br/>') {
+                        currentLineChars = 0;
+                    }
+                    // otherwise, just assume it is harmless and include it
                     outputHtml += content.text;
                 } else if (content.type === DOUBLE_BYTE) {
                     outputHtml += content.text;
                     currentLineChars += content.text.length;
                 } else {
-                    // single byte: check if we need to split string before inserting
-                    // I also assume each single byte char is 42% width of double byte char
+
+                    // single byte
                     content.text = content.text.trim();
-                    if (content.length > 0) {
-                        content.text = ' ' + content.legnth + ' ';
-                    }
                     textAlign = 'center';
                     while (content.text.length > 0) {
+                        textWidth = 0;
+                        units = 0;
                         // new string width
                         classes = JUSTIFY_SPAN;
-                        textWidth = Math.ceil(content.text.length * options.engRatio);
-                        if (charPerLine - currentLineChars > textWidth) {
-                            units = textWidth;
-                            cutpos = content.text.length;
-                        } else {
-                            units = charPerLine - currentLineChars;
-                            cutpos = units * 2 - 1;
-                            if (/[a-zA-Z]/.test(content.text.charAt(cutpos - 1))) {
-                                classes += ' ' + JUSTIFY_HYPHEN;
+                        spaceleft = (charPerLine - currentLineChars) * fontsize;  //left space in current row; in pixels
+                        for (index = 0; index < content.text.length; index++ ) {
+                            textWidth += widthMap[content.text.charAt(index)];
+                            if (spaceleft < textWidth) {
+                                // we need to cut string here
+                                units = charPerLine - currentLineChars;
+                                if (/[a-zA-Z]/.test(content.text.charAt(index - 1))) {
+                                    classes += ' ' + JUSTIFY_HYPHEN;
+                                    textAlign = 'right';
+                                }
+                                break;
                             }
                         }
-
-                        outputHtml += '<span class="' + classes + '" style="text-align:' + textAlign + ';font-size:' + (fontsize + options.sizeReduction) + 'px;width:' + (fontsize * units) + 'px">' + content.text.slice(0, cutpos) + '</span>';
+                        cutpos = index;
+                        units = units || Math.ceil(textWidth / fontsize);
+                        outputHtml += '<span class="' + classes + '" style="text-align:' + textAlign + ';width:' + (fontsize * units) + 'px">' + content.text.slice(0, cutpos) + '</span>';
                         content.text = content.text.substring(cutpos);
                         currentLineChars = (currentLineChars + units) % charPerLine;
                         textAlign = content.text.length > 0 ? 'left' : 'center';
@@ -135,10 +187,11 @@ YUI.add('dualjustify', function(Y, NAME){
 
         Y.namespace('Justify').DualJustify = function (options) {
 
-            var sizeReduction = options && options.hasOwnProperty('sizeReduction') ? options.sizeReduction : DEFAULT_SINGLE_BYTE_SIZE_REDUCTION,
-                engRatio = options && options.hasOwnProperty('engRatio') ? options.engRatio : AVG_SINGLE_BYTE_RATIO,
+            var timestart = Date.now(), timeend,
                 selector = options && options.selector ? options.selector : DUALJUSTIFY_SELECTOR,
                 blocks = Y.all(selector);
+
+            refBlock = blocks.size() > 0 ? blocks.item(blocks.size() - 1) : null;
 
             blocks.each(function(node){
                 if (node.test(NOJUSTIFY)) {
@@ -149,7 +202,7 @@ YUI.add('dualjustify', function(Y, NAME){
                     textArray,
                     justifySpans = node.all('.' + JUSTIFY_SPAN);
 
-                if (text.length * 0.5 > text.replace(/[0-9a-zA-Z]/g, '').length || node.one('iframe,object,img,i,embed,br')) {
+                if (text.length * 0.5 > text.replace(/[0-9a-zA-Z]/g, '').length || node.one('iframe,object,img,i,embed')) {
                     // 1. over half of the text is english, bypass this
                     // 2. if there are any iframe/object... which is not inline text, we will skip
                     node.addClass(NOJUSTIFY);
@@ -167,9 +220,14 @@ YUI.add('dualjustify', function(Y, NAME){
                 }
 
                 textArray = _parseInnerHtml(node);
-                node.setHTML(_generateJustifyHtml(textArray, {node: node, engRatio: engRatio, sizeReduction: sizeReduction}));
+                node.setHTML(_generateJustifyHtml(textArray, node));
 
             });
+            if (widthNode) {
+                widthNode.remove(true);
+            }
+            timeend = Date.now();
+            console.log('total execution: ', timeend - timestart);
         };
 
 

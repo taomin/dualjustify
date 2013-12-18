@@ -24,11 +24,7 @@ In your blog, insert below codes:
         YUtil = Y;
         options = {
                 // CSS selector for the article body's paragraph
-                selector: '.item_content p',
-                // you can customize how dual justify works. This is an avg of how much %width that an english char occupies
-                engRatio: 0.51,
-                // if you want to adjust your English text font size, specify the delta here
-                sizeReduction: 0
+                selector: '.item_content p'
         };
         Y.on('domready', Y.Justify.DualJustify, null, options);
         Y.on('resize', Y.Justify.DualJustify, null, options);

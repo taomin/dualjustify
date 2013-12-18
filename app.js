@@ -30,12 +30,12 @@ app.get('/', function(req, res){
     res.render('index', {
         title: "Justify test",
         content: [
+            "這就是來自機器人開發公司波士頓動力（Boston Dynamics）的明星產品大狗（BigDog）。大狗最早創建於 2005 年，現在它和獵豹（Cheetah）、野貓（WildCat）、沙蚤（Sand Flea）以及阿特拉斯（Atlas）一起成為 Google 的產品——搜索引擎巨頭在日前收購了波士頓動力。",
             "1994年，曼德拉和他領導的「非洲民族議會」（ANC）贏得南非首次多種族大選。當時外界對這個新的「彩虹國度」寄予厚望。在許多人眼裡，曼德拉像個活聖人，近20年他宛如「道德保護罩」，讓外界看不清南非的真相，特別是ANC的墮落腐敗。",
             "環保局公布，連益工業從民國90年以來被查獲的違規紀錄有6次，包含102年被查獲設備與許可內容不符，100年連續2次被查獲放流水不符標準，93年被查獲放流水不符標準，90年共2次分別為違反管理辦法、未申報貯留廢水的廢水處理情形。",
             "《紐約每日新聞》14日報導，伊利諾州退休農夫歐瑞斯（Johnny Orris），自11年前愛妻過世後就沒再享受過性愛。49歲孫子艾德替阿公報名今年10月參加廣播名嘴霍華史登的《讓我阿公上床去》競賽節目，獲得與內華達州知名「月光兔女郎山莊」妓院女郎進行3人性愛的大獎。",
             "山區、雪地、叢林、沙灘……背負四個包裹的行走機器人的步伐有點蹣跚，但依舊保持前行。幾次在冰面上的滑倒後也能迅速調整重心，恢復平衡。",
             "最近的一個例子，是台灣的團隊需要一位資深的系統架構師(architect)，這個等級的職位，台灣之前應該是完全沒有，所以光面試官的資格都要找美國人幫忙。某位非常資深，在團隊裡面也備受尊敬的同事去應試，沒想到被刷下來不說，還被得了一個“這樣的程度，怎麼能進我們公司？”的評語。",
-            "這就是來自機器人開發公司波士頓動力（Boston Dynamics）的明星產品大狗（BigDog）。大狗最早創建於 2005 年，現在它和獵豹（Cheetah）、野貓（WildCat）、沙蚤（Sand Flea）以及阿特拉斯（Atlas）一起成為 Google 的產品——搜索引擎巨頭在日前收購了波士頓動力。",
 
             "這是 Google 在過去半年內收購的第 8 家機器人製造公司。《紐約時報》在一週前公開了 Google 的機器人項目，由前 Android 部門主管安迪·魯賓（Andy Rubin）領導。擅長製造行走機器人的波士頓動力將為 Google 機器人項目注入新的血液。",
 
@@ -55,10 +55,9 @@ app.get('/', function(req, res){
 
             "但對 Google 而言，他們的願景顯然不希望只侷限於當下，從拉里·佩奇（Larry Page）之前的描述就能看出：佩奇希望 Google 能改善人們的生活——一個更為宏大和抽象的目標。",
 
-            "而就機器人項目而言，它對 Google 的價值如《紐約時報》所說，將協助 Google 在製造業上有所建設。另外據知情人透露，Google 還希望能通過機器人與亞馬遜在零售業上展開競爭，將產品供應鏈不斷延伸，實現從工廠將產品直接配送到用戶家門口。",
-
             "聽起來不錯。波士頓動力的網站還顯示，他們正在嘗試「人體模擬」項目，用於基於模擬人類行為的訓練。他們描述了一個圍繞人類展開的應用場景，表示將提高人類與電腦和可穿戴設備的交流。這與 Google 的目標不謀而合。從已經推出的幾款產品來看，他們做得還不錯。",
-            "The App Store is about to shutdown for holiday break this Saturday. And so I felt it was a good time to reflect on where we are with regard to the marketplace heading into 2014. The answer, as best I can tell from talking with innumerable developers over the past year, is still very good — but it’s not exactly great. And it should be great."
+            "The App Store is about to shutdown for holiday break this Saturday. And so I felt it was a good time to reflect on where we are with regard to the marketplace heading into 2014. The answer, as best I can tell from talking with innumerable developers over the past year, is still very good — but it’s not exactly great. And it should be great.",
+            "而就機器人項目而言，它對 Google 的價值如《紐約時報》所說，將協助 Google 在製造業上有所建設。另外據知情人透露，Google 還希望能通過機器人與亞馬遜在零售業上展開競爭，將產品供應鏈不斷延伸，實現從工廠將產品直接配送到用戶家門口。"
 
         ]
     });
