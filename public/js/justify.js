@@ -210,7 +210,7 @@ YUI.add('dualjustify', function(Y, NAME){
                     textArray,
                     justifySpans = node.all('.' + JUSTIFY_SPAN);
 
-                if (text.length * 0.5 > text.replace(/[0-9a-zA-Z]/g, '').length || node.one('iframe,object,img,i,embed,table')) {
+                if (text.length * 0.5 > text.replace(/[0-9a-zA-Z]/g, '').length || node.one('iframe,object,img,i,embed,table,ol,ul,li')) {
                     // 1. over half of the text is english, bypass this
                     // 2. if there are any iframe/object... which is not inline text, we will skip
                     node.addClass(NOJUSTIFY);
