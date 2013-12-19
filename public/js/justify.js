@@ -32,10 +32,15 @@ YUI.add('dualjustify', function(Y, NAME){
             }
 
             if (widthMap[character] === undefined) {
-                widthNode.set('text', character);
-                widthMap[character] = widthNode.get('offsetWidth') || 5;  // empty space's offsetWidth is 0, change that to 5
+                if (character === ' ') {
+                    widthMap[character] = _getCharWidth('e e') - _getCharWidth('ee');
+                } else {
+                    widthNode.set('text', character);
+                    widthMap[character] = widthNode.get('offsetWidth');  // empty space's offsetWidth is 0, change that to 5
+                }
             }
 
+            return widthMap[character];
         }
 
         /**
@@ -174,7 +179,7 @@ YUI.add('dualjustify', function(Y, NAME){
                             if (spaceleft < textWidth) {
                                 // we need to cut string here
                                 units = charPerLine - currentLineChars;
-                                if (/[a-zA-Z]/.test(content.text.charAt(index - 1))) {
+                                if (/[a-zA-Z]/.test(content.text.charAt(index - 1)) && /[a-zA-Z]/.test(content.text.charAt(index))) {
                                     classes += ' ' + JUSTIFY_HYPHEN;
                                     textAlign = 'right';
                                 }
@@ -184,7 +189,7 @@ YUI.add('dualjustify', function(Y, NAME){
                         cutpos = index;
                         units = units || Math.ceil(textWidth / fontsize);
                         outputHtml += '<span class="' + classes + '" style="text-align:' + textAlign + ';width:' + (fontsize * units) + 'px;font-size:' + fontsize +'px">' + content.text.slice(0, cutpos) + '</span>';
-                        content.text = content.text.substring(cutpos);
+                        content.text = /^\s*(.*)$/.exec(content.text.substring(cutpos))[1];
                         currentLineChars = (currentLineChars + units) % charPerLine;
                         textAlign = content.text.length > 0 ? 'left' : 'center';
                     }
@@ -211,16 +216,9 @@ YUI.add('dualjustify', function(Y, NAME){
                     return;
                 }
 
-                var text = node.get('text').trim(),
+                var text,
                     textArray,
                     justifySpans = node.all('.' + JUSTIFY_SPAN);
-
-                if (text.length * 0.5 > text.replace(/[0-9a-zA-Z]/g, '').length || node.one('iframe,object,img,i,embed,table,ol,ul,li,.' + NOJUSTIFY)) {
-                    // 1. over half of the text is english, bypass this
-                    // 2. if there are any iframe/object... which is not inline text, we will skip
-                    node.addClass(NOJUSTIFY);
-                    return;
-                }
 
                 // an expensive way to cleanup existing justify-spans : mostly from window resize
                 if (justifySpans.size() > 0) {
@@ -230,6 +228,15 @@ YUI.add('dualjustify', function(Y, NAME){
                     });
                     // have to reset html to kill yui node
                     node.setHTML(node.get('innerHTML'));
+                }
+
+                text = node.get('text').trim();
+
+                if (text.length * 0.5 > text.replace(/[0-9a-zA-Z]/g, '').length || node.one('iframe,object,img,i,embed,table,ol,ul,li,.' + NOJUSTIFY)) {
+                    // 1. over half of the text is english, bypass this
+                    // 2. if there are any iframe/object... which is not inline text, we will skip
+                    node.addClass(NOJUSTIFY);
+                    return;
                 }
 
                 textArray = _parseInnerHtml(node);
