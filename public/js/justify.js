@@ -207,7 +207,7 @@ YUI.add('dualjustify', function(Y, NAME){
             refBlock = blocks.size() > 0 ? blocks.item(blocks.size() - 1) : null;
 
             blocks.each(function(node){
-                if (node.test(NOJUSTIFY)) {
+                if (node.test('.' + NOJUSTIFY)) {
                     return;
                 }
 
