@@ -63,7 +63,7 @@ YUI.add('dualjustify', function(Y, NAME){
                 return [{ type: TAG, text: node.get('outerHTML')}];
             } else if (node.get('childNodes').size() === 0 || node.test('.' + JUSTIFY_SPAN)) {
                 // base case: this node contains pure text, parse string into array
-                text = node.get('text').trim().replace(/（/g, '(').replace(/）/g, ')');
+                text = node.get('text');
                 if (text.length > 0) {
                     // initial value
                     currentInDoubleByte = isDoubleByte(text.charAt(0));
