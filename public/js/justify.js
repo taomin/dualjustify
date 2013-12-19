@@ -8,10 +8,15 @@ YUI.add('dualjustify', function(Y, NAME){
             JUSTIFY_SPAN = 'justify-span',
             JUSTIFY_HYPHEN = 'justify-hyphen',
             NOJUSTIFY = 'justify-noadjust',
-            DOUBLE_BYTE_START_INDEX = 10000, // we assume all the char which UTF-8 index is greater than 10000 is double byte char.
             refBlock,  // last node that needs dualjustify. We will store this node because we use it for testing char width
             widthNode,
             widthMap = {};
+
+
+        function isDoubleByte (character) {
+            // A temporary hack for determing if this is multi-byte chars
+            return character.charCodeAt(0) > 10000;
+        }
 
         /**
          * A function that calculates the char width, and store the value in widthMap.
@@ -27,7 +32,7 @@ YUI.add('dualjustify', function(Y, NAME){
 
             if (widthMap[character] === undefined) {
                 widthNode.set('text', character);
-                widthMap[character] = widthNode.get('offsetWidth') || 5;  // empty space's offsetWidth is 0, change that to 3
+                widthMap[character] = widthNode.get('offsetWidth') || 8;  // empty space's offsetWidth is 0, change that to 3
             }
 
         }
@@ -44,7 +49,7 @@ YUI.add('dualjustify', function(Y, NAME){
          * @return {Array} parsed result
          */
         function _parseInnerHtml (node) {
-            var output = [], hasOuterHtml, wrapper, text, currentInDoubleByte, i = 0, character, charCode,
+            var output = [], hasOuterHtml, wrapper, text, currentInDoubleByte, i, character, isDouble,
                 currentStr = '', nodeName = node.get('nodeName');
 
             if (nodeName === 'BR') {
@@ -55,18 +60,18 @@ YUI.add('dualjustify', function(Y, NAME){
                 text = node.get('text').trim().replace(/（/g, '(').replace(/）/g, ')');
                 if (text.length > 0) {
                     // initial value
-                    currentInDoubleByte = text.charCodeAt(i) > DOUBLE_BYTE_START_INDEX ? true : false;
+                    currentInDoubleByte = isDoubleByte(text.charAt(0));
 
-                    while (i < text.length) {
+                    for (i=0; i < text.length; i++) {
                         character = text.charAt(i);
-                        charCode = text.charCodeAt(i);
+                        isDouble = isDoubleByte(character);
 
-                        if (charCode < DOUBLE_BYTE_START_INDEX) {
+                        if (!isDouble) {
                             _getCharWidth(character);
                         }
 
                         // if new char uses the same lang w/ current string
-                        if ((charCode > DOUBLE_BYTE_START_INDEX && currentInDoubleByte) || (charCode < DOUBLE_BYTE_START_INDEX && !currentInDoubleByte)) {
+                        if (isDouble === currentInDoubleByte) {
                             // append it to current string
                             currentStr += character;
                         } else {
@@ -76,10 +81,9 @@ YUI.add('dualjustify', function(Y, NAME){
                                 text: currentStr
                             });
                             currentStr = character;
-                            currentInDoubleByte = charCode > DOUBLE_BYTE_START_INDEX ? true : false;
+                            currentInDoubleByte = isDouble;
                         }
 
-                        i++;
                     }
                     // last one
                     output.push({
@@ -149,6 +153,9 @@ YUI.add('dualjustify', function(Y, NAME){
 
                     // single byte
                     content.text = content.text.trim();
+                    if (content.text.length >= 3) {
+                        content.text = ' ' + content.text + ' ';
+                    }
                     textAlign = 'center';
                     while (content.text.length > 0) {
                         textWidth = 0;
@@ -220,7 +227,7 @@ YUI.add('dualjustify', function(Y, NAME){
                 }
 
                 textArray = _parseInnerHtml(node);
-                node.setHTML(_generateJustifyHtml(textArray, node));
+                node.setHTML(_generateJustifyHtml(textArray, node)).setStyle('word-break', 'break-all');
 
             });
             if (widthNode) {
