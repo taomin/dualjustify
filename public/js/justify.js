@@ -96,6 +96,11 @@ YUI.add('dualjustify', function(Y, NAME){
                 return output;  //return result
             }
 
+            if (node.test('.' + NOJUSTIFY)) {
+                // this is a tag and we can by pass it
+                return [];
+            }
+
             // concat all childnodes results
             node.get('childNodes').each(function(child) {
                 output = output.concat(_parseInnerHtml(child));
