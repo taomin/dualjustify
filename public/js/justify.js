@@ -14,7 +14,8 @@ YUI.add('dualjustify', function(Y, NAME){
 
 
         function isDoubleByte (character) {
-            // A temporary hack for determing if this is multi-byte chars
+            // A temporary hack for determing if this is double-byte chars
+            // it looks like not a trivial as it may seen. double byte chars are spread all over the UTF encoding space
             return character.charCodeAt(0) > 10000;
         }
 
@@ -32,7 +33,7 @@ YUI.add('dualjustify', function(Y, NAME){
 
             if (widthMap[character] === undefined) {
                 widthNode.set('text', character);
-                widthMap[character] = widthNode.get('offsetWidth') || 8;  // empty space's offsetWidth is 0, change that to 3
+                widthMap[character] = widthNode.get('offsetWidth') || 5;  // empty space's offsetWidth is 0, change that to 5
             }
 
         }
@@ -177,7 +178,7 @@ YUI.add('dualjustify', function(Y, NAME){
                         }
                         cutpos = index;
                         units = units || Math.ceil(textWidth / fontsize);
-                        outputHtml += '<span class="' + classes + '" style="text-align:' + textAlign + ';width:' + (fontsize * units) + 'px">' + content.text.slice(0, cutpos) + '</span>';
+                        outputHtml += '<span class="' + classes + '" style="text-align:' + textAlign + ';width:' + (fontsize * units) + 'px;font-size:' + fontsize +'px">' + content.text.slice(0, cutpos) + '</span>';
                         content.text = content.text.substring(cutpos);
                         currentLineChars = (currentLineChars + units) % charPerLine;
                         textAlign = content.text.length > 0 ? 'left' : 'center';
