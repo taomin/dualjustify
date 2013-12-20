@@ -10,7 +10,8 @@ YUI.add('dualjustify', function(Y, NAME){
             NOJUSTIFY = 'justify-noadjust',
             refBlock,  // last node that needs dualjustify. We will store this node because we use it for testing char width
             widthNode,
-            widthMap = {};
+            widthMap = {},
+            origHtml = {};
 
 
         function isDoubleByte (character) {
@@ -33,7 +34,7 @@ YUI.add('dualjustify', function(Y, NAME){
 
             if (widthMap[character] === undefined) {
                 if (character === ' ') {
-                    widthMap[character] = _getCharWidth('e e') - _getCharWidth('ee');
+                    widthMap[character] = _getCharWidth('e e') - 2 * _getCharWidth('e');
                 } else {
                     widthNode.set('text', character);
                     widthMap[character] = widthNode.get('offsetWidth');  // empty space's offsetWidth is 0, change that to 5
@@ -161,12 +162,8 @@ YUI.add('dualjustify', function(Y, NAME){
                     outputHtml += content.text;
                     currentLineChars += content.text.length;
                 } else {
-
                     // single byte
                     content.text = content.text.trim();
-                    if (content.text.length >= 3) {
-                        content.text = ' ' + content.text + ' ';
-                    }
                     textAlign = 'center';
                     while (content.text.length > 0) {
                         textWidth = 0;
@@ -186,10 +183,13 @@ YUI.add('dualjustify', function(Y, NAME){
                                 break;
                             }
                         }
-                        cutpos = index;
                         units = units || Math.ceil(textWidth / fontsize);
+                        cutpos = index;
+                        while (cutpos < content.text.length && /\s/.test(content.text.charAt(cutpos))) {
+                            cutpos++;
+                        }
                         outputHtml += '<span class="' + classes + '" style="text-align:' + textAlign + ';width:' + (fontsize * units) + 'px;font-size:' + fontsize +'px">' + content.text.slice(0, cutpos) + '</span>';
-                        content.text = /^\s*(.*)$/.exec(content.text.substring(cutpos))[1];
+                        content.text = content.text.substring(cutpos);
                         currentLineChars = (currentLineChars + units) % charPerLine;
                         textAlign = content.text.length > 0 ? 'left' : 'center';
                     }
@@ -211,23 +211,18 @@ YUI.add('dualjustify', function(Y, NAME){
 
             refBlock = blocks.size() > 0 ? blocks.item(blocks.size() - 1) : null;
 
-            blocks.each(function(node){
+            blocks.each(function(node, index){
                 if (node.test('.' + NOJUSTIFY)) {
                     return;
                 }
 
                 var text,
                     textArray,
-                    justifySpans = node.all('.' + JUSTIFY_SPAN);
+                    justifySpans = node.all('.' + JUSTIFY_SPAN),
+                    nodeID = node.generateID();
 
-                // an expensive way to cleanup existing justify-spans : mostly from window resize
-                if (justifySpans.size() > 0) {
-                    // a dirty way to remove all the justify spans in the dom
-                    justifySpans.each(function (child){
-                        child.replace(Y.Node.create(child.get('innerHTML')));
-                    });
-                    // have to reset html to kill yui node
-                    node.setHTML(node.get('innerHTML'));
+                if (origHtml[nodeID]) {
+                    node.setHTML(origHtml[nodeID]);
                 }
 
                 text = node.get('text').trim();
@@ -237,6 +232,10 @@ YUI.add('dualjustify', function(Y, NAME){
                     // 2. if there are any iframe/object... which is not inline text, we will skip
                     node.addClass(NOJUSTIFY);
                     return;
+                }
+
+                if (!origHtml[nodeID]) {
+                    origHtml[nodeID] = node.get('innerHTML');
                 }
 
                 textArray = _parseInnerHtml(node);
