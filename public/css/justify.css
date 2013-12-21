@@ -7,4 +7,5 @@
     text-align:center;
     display: inline-block;
     white-space: nowrap;
+    font-weight: normal !important;
 }
