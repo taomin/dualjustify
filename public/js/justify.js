@@ -71,7 +71,7 @@ YUI.add('dualjustify', function (Y, NAME) {
      * @return {Array} parsed result
      */
     function parseInnerHtml(node) {
-        var output = [], hasOuterHtml, wrapper, text, currentInDoubleByte, i, max, character, isDouble,
+        var output = [], outerhtml, innerhtml, tag, text, currentInDoubleByte, i, max, character, isDouble,
             currentStr = '', nodeName = node.get('nodeName');
 
         if (nodeName === 'BR') {
@@ -125,14 +125,18 @@ YUI.add('dualjustify', function (Y, NAME) {
                 output = output.concat(parseInnerHtml(child));
             });
 
+            outerhtml = node.get('outerHTML');
+            innerhtml = node.get('innerHTML');
+
             // if we have outer html
-            if (node.get('outerHTML').length > node.get('innerHTML').length) {
-                wrapper = node.get('outerHTML').split(node.get('innerHTML'));
-                if (wrapper[0]) {
-                    output.unshift({ type: TAG, text: wrapper[0]});
+            if (outerhtml.length > innerhtml.length) {
+                tag = outerhtml.slice(0, outerhtml.lastIndexOf(innerhtml));
+                if (tag) {
+                    output.unshift({ type: TAG, text: tag});
                 }
-                if (wrapper[1]) {
-                    output.push({type: TAG, text: wrapper[1]});
+                tag = outerhtml.slice(outerhtml.lastIndexOf(innerhtml) + innerhtml.length);
+                if (tag) {
+                    output.push({type: TAG, text: tag});
                 }
             }
         }
