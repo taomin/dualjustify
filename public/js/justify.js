@@ -130,13 +130,11 @@ YUI.add('dualjustify', function (Y, NAME) {
 
             // if we have outer html
             if (outerhtml.length > innerhtml.length) {
-                tag = outerhtml.slice(0, outerhtml.lastIndexOf(innerhtml));
-                if (tag) {
-                    output.unshift({ type: TAG, text: tag});
-                }
-                tag = outerhtml.slice(outerhtml.lastIndexOf(innerhtml) + innerhtml.length);
-                if (tag) {
-                    output.push({type: TAG, text: tag});
+
+                tag = outerhtml.split(new RegExp(innerhtml + '</' + nodeName + '>$', 'i'));
+                if (tag && tag[0]) {
+                    output.unshift({ type: TAG, text: tag[0]});
+                    output.push({type: TAG, text: '</' + nodeName.toLowerCase() + '>'});
                 }
             }
         }
