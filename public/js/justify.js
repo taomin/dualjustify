@@ -72,9 +72,9 @@ YUI.add('dualjustify', function (Y, NAME) {
      */
     function parseInnerHtml(node) {
         var output = [], outerhtml, innerhtml, tag, text, currentInDoubleByte, i, max, character, isDouble,
-            currentStr = '', nodeName = node.get('nodeName');
+            currentStr = '', nodeName = node.get('nodeName').toLowerCase();
 
-        if (nodeName === 'BR') {
+        if (nodeName === 'br') {
             // if node is BR tag, include it directly
             output.push({
                 type: TAG,
@@ -131,10 +131,10 @@ YUI.add('dualjustify', function (Y, NAME) {
             // if we have outer html
             if (outerhtml.length > innerhtml.length) {
 
-                tag = outerhtml.split(new RegExp(innerhtml + '</' + nodeName + '>$', 'i'));
+                tag = outerhtml.split(innerhtml +  '</' + nodeName + '>');
                 if (tag && tag[0]) {
                     output.unshift({ type: TAG, text: tag[0]});
-                    output.push({type: TAG, text: '</' + nodeName.toLowerCase() + '>'});
+                    output.push({type: TAG, text: '</' + nodeName + '>'});
                 }
             }
         }

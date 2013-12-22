@@ -30,6 +30,7 @@ app.get('/', function(req, res){
     res.render('index', {
         title: "Justify test",
         content: [
+            '然後，這些鬧劇還沒有結束的意思。TechCrunch 昨天刊出了一篇  <a href="http://techcrunch.com/2011/12/09/apple-made-a-deal-with-the-devil-no-worse-a-patent-troll/">Apple Made A Deal With The Devil (No, Worse: A Patent Troll)</a> ，揭發了更多內幕：Apple 才剛把一批專利讓渡給一家叫 Digitude 的公司，而這家名不見經傳的公司&#8230; 顯然是個<a href="http://zh.wikipedia.org/wiki/%E5%B0%88%E5%88%A9%E8%9F%91%E8%9E%82">專利蟑螂</a>，而Digitude 才剛用這批專利控告了 RIM、HTC、LG、Motorola、Samsung、Sony、Amazon 和 Nokia。',
             "引用今年很紅的一齣連續劇 「我可能不會愛妳」 裡面的台詞：<strong>老其實並不可怕，最可怕的是被老追著跑，</strong>所以只要我們做好心裡準備，提早站穩馬步，正面向它迎戰，就沒有好驚慌失措的了！",
             "都是因陋就簡光看舞台燈光收音就讓人想哭。他們去大陸，尋找更大的舞台去了。那裡有足夠的財力支撐這些舞台，有實力的人就可以在那裡翻身，從這角度看，北京和上海儼然成了華人圈的抱負之城。那北京上海可以挑戰紐約，成為全球性的抱負之城嗎？我沒有住過中國大陸，我不知道，但是我突然又想到之前看過的這篇文章：You’ll never be Chinese. And I don't know if there is ever a way",
             "這就是來自機器人開發公司波士頓動力（Boston Dynamics）的明星產品大狗（BigDog）。大狗最早創建於 2005 年，現在它和獵豹（Cheetah）、野貓（WildCat）、沙蚤（Sand Flea）以及阿特拉斯（Atlas）一起成為 Google 的產品——搜索引擎巨頭在日前收購了波士頓動力。",
