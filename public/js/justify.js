@@ -4,8 +4,8 @@ YUI.add('dualjustify', function (Y, NAME) {
     "use strict";
 
     /*static variable*/
-    var DOUBLE_BYTE = 'd',
-        SINGLE_BYTE = 's',
+    var CJK_STRING = 'd',
+        NONCJK_STRING = 's',
         TAG = 't',
         DUALJUSTIFY_SELECTOR = '.dualjustify',
         JUSTIFY_SPAN = 'justify-span',
@@ -25,14 +25,16 @@ YUI.add('dualjustify', function (Y, NAME) {
      * @param character {String} The character that we want to test
      * @void
      */
-    function isDoubleByte(character) {
-        // A temporary hack for determing if this is double-byte chars
-        // it looks like not a trivial as it may seen.
-        // first of all, double byte chars are spread all over the UTF encoding space
-        // second, if you dig further, even double byte character !== CJK chars, and we only want CJK which occupy full font width
-        // before I found a way (and if possible, a fast way), I simply assume all char code less than 10000 are non-CJK.
-        // surprisingly, this rule works pretty well on Chinese blogs when I tested it.
-        return character.charCodeAt(0) > 10000;
+    function isCJK(character) {
+        // it is not as trivial as it may seen.
+        // CJK chars are spread all over the UTF encoding space. Not all of them are grouped together
+        // Japanese characters starts at 11904, then comes Chinese chars. Chinese chars ends around 40902
+        // Korean characters starts at 44032, ends at 55203.
+        // There are some chars that falls in this range and doesn't belong to CJK (e.g. 12331 is  〫)
+        // but they are rarely used so I ignore them
+        // ref: http://www.public.asu.edu/~rjansen/glyph_encoding.html
+        var charcode = character.charCodeAt(0);
+        return (charcode >= 11904 && charcode <= 40902) || (charcode >= 44032 && charcode <= 55203) ;
     }
 
     /**
@@ -63,15 +65,15 @@ YUI.add('dualjustify', function (Y, NAME) {
      * Parse a Node's innerHTML and parse into an array. The array would be look like
      *  [
      *       { type: TAG, text: '<a href="blah">'},
-     *       { type: SINGLE_BYTE, text: 'abc' },
-     *       { type: DOUBLE_BYTE, text: '中文'},
+     *       { type: NONCJK_STRING, text: 'abc' },
+     *       { type: CJK_STRING, text: '中文'},
      *       { type: TAG, text: '</a>'}
      *  ]
      * @param node {Y.Node} a node which we want to parse its innerHTML
      * @return {Array} parsed result
      */
     function parseInnerHtml(node) {
-        var output = [], outerhtml, innerhtml, tag, text, currentInDoubleByte, i, max, character, isDouble,
+        var output = [], outerhtml, innerhtml, tag, text, currentStringInCJK, i, max, character, currentCharInCJK,
             currentStr = '', nodeName = node.get('nodeName').toLowerCase();
 
         if (nodeName === 'br') {
@@ -85,34 +87,34 @@ YUI.add('dualjustify', function (Y, NAME) {
             text = node.get('text');
             if (text.length > 0) {
                 // initial value
-                currentInDoubleByte = isDoubleByte(text.charAt(0));
+                currentStringInCJK = isCJK(text.charAt(0));
 
                 for (i = 0, max = text.length; i < max; i += 1) {
                     character = text.charAt(i);
-                    isDouble = isDoubleByte(character);
+                    currentCharInCJK = isCJK(character);
 
-                    if (!isDouble) {
+                    if (!currentCharInCJK) {
                         getCharWidth(character);
                     }
 
                     // if new char uses the same lang w/ current string
-                    if (isDouble === currentInDoubleByte) {
+                    if (currentCharInCJK === currentStringInCJK) {
                         // append it to current string
                         currentStr += character;
                     } else {
                     // if not, save the previous string into text array
                         output.push({
-                            type: currentInDoubleByte ? DOUBLE_BYTE : SINGLE_BYTE,
+                            type: currentStringInCJK ? CJK_STRING : NONCJK_STRING,
                             text: currentStr
                         });
                         currentStr = character;
-                        currentInDoubleByte = isDouble;
+                        currentStringInCJK = currentCharInCJK;
                     }
 
                 }
                 // last one
                 output.push({
-                    type: currentInDoubleByte ? DOUBLE_BYTE : SINGLE_BYTE,
+                    type: currentStringInCJK ? CJK_STRING : NONCJK_STRING,
                     text: currentStr
                 });
             }
@@ -148,8 +150,8 @@ YUI.add('dualjustify', function (Y, NAME) {
      * Transfrom parseInnerHtml results into justified html. The input array is expected to be look like
      *  [
      *       { type: TAG, text: '<a href="blah">'},
-     *       { type: SINGLE_BYTE, text: 'abc' },
-     *       { type: DOUBLE_BYTE, text: '中文'},
+     *       { type: NONCJK_STRING, text: 'abc' },
+     *       { type: CJK_STRING, text: '中文'},
      *       { type: TAG, text: '</a>'}
      *  ]
      * and the output would be in html, which you can directly use it to replace current node's innerhtml and see justifed result
@@ -187,11 +189,11 @@ YUI.add('dualjustify', function (Y, NAME) {
                 }
                 // otherwise, just assume it is harmless and include it
                 outputHtml += content.text;
-            } else if (content.type === DOUBLE_BYTE) {
+            } else if (content.type === CJK_STRING) {
                 outputHtml += content.text;
                 currentLineChars += content.text.length;
             } else {
-                // current element is single byte
+                // current element is non-CJK string
                 content.text = content.text.trim();
                 textAlign = 'center';
                 while (content.text.length > 0) {
