@@ -6,7 +6,7 @@ A javascript lib for implementing dual-justify for paragraphs in web.
 a demo url : http://newspeak.cc:3000/
 
 
-## What is Dual justify (縱橫對齊)
+## What is Dual Justify (縱橫對齊)
 
 Dual justify (縱橫對齊）is a traditonal layout which is usedly commonly in Chinese/Japanese/Korean (a.k.a CJK).
 In these languages, each character is constrained in a square, so you can easily create a layout which each single character is aligned vertically and horizontally.
@@ -22,11 +22,6 @@ It simply put all the non-CJK characters (mostly single-byte chars) in a box whi
 
 Here is what it should look like:
 https://lh3.googleusercontent.com/-FfPwE7UI3kk/T5QT-d7NEgI/AAAAAAAAEmY/clhrpqbxIt8/w506-h379/oL5H.png
-
-
-## Note
-The original idea came from @octw
-http://blog.readmoo.com/2013/12/03/why-not-use-justification-on-web/
 
 ## How to use it on your blog (or how to messed up your site)
 
@@ -53,7 +48,7 @@ In your blog, insert below codes:
 </script>
 ```
 
-## Documentation
+## Installation
 
 Based on YUI 3 and Node JS.
 
@@ -62,3 +57,7 @@ Step:
 * npm install
 * node app
 * load http://localhost:3000/ in your browser and see example
+
+## Special thanks to
+The original idea came from @octw
+http://blog.readmoo.com/2013/12/03/why-not-use-justification-on-web/
