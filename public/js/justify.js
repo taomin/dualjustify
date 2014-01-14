@@ -1,3 +1,9 @@
+/*
+Copyright 2013, Yahoo Inc.
+Copyrights licensed under the New BSD License. See the accompanying LICENSE
+file for terms.
+*/
+
 /*global YUI */
 YUI.add('dualjustify', function (Y, NAME) {
 

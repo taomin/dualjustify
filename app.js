@@ -1,3 +1,8 @@
+/*
+Copyright 2013, Yahoo Inc.
+Copyrights licensed under the New BSD License. See the accompanying LICENSE
+file for terms.
+*/
 
 /**
  * Module dependencies.
@@ -26,7 +31,6 @@ app.configure(function(){
 });
 
 app.get('/', function(req, res){
-    console.log('index page');
     res.render('index', {
         title: "Justify test",
         content: [
