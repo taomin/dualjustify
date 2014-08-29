@@ -3,7 +3,7 @@
 A javascript lib for implementing dual-justify for paragraphs in web.
 
 
-a demo url : http://newspeak.cc:3000/
+a demo url : http://taomin.github.io/dualjustify/
 
 
 ## What is Dual Justify (縱橫對齊)
